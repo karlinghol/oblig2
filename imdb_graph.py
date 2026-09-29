@@ -48,4 +48,9 @@ class imdb_graph():
                 dfs(self.graph, movie, visited)
 
     def dfs(graph, movie, visited):
+        #Vi skal sette alle skuespillerne som er i filmen i en stack og i visited
+        #Så sjekker vi om skuespillern (neste fra stacken) har overlapp med en annen ny film 
+        #Hvis ja, legger vi den filmen i stacken og i visited
+        #Hvis nei, sjekker vi neste element i stacken
+        pass
         

@@ -4,26 +4,13 @@ class Film():
         self.title = title,
         self.rating = rating
 
-    #Siden vi ønsker å lagre hele film objekter som nøkler i nabolisten
-    #Er vi avhengig og kunne slå opp på id for å kunne finne tilbake til Film objektet
-    #Vi implementerer derfor __hash__ og __eq__ 
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        if isinstance(other, Film):
-            self.rating = Film.rating
-        #Dette sørger for at vi sammenligner på id, selv om det vi sjekker er ett Film objekt eller en string med id
-        if isinstance(other, str):
-            return self.id == other
-
 class Actor():
     def __init__(self, id, name):
         self.id = id,
         self.name = name
 
 
-class imdb_graph():
+class Imdb_graph():
     #Vi har kommet frem til at denne typer graf er en Bipartite graf
     #Der V kan representeres som en mengde V1 og V2, eller skuespillere og filmer
     #https://www.geeksforgeeks.org/dsa/bipartite-graphs-in-python/
@@ -37,32 +24,63 @@ class imdb_graph():
         self.movies.add(new_film)
 
     def insert_actor(self, actor_parts):
-        new_actor = Actor({actor_parts[0], actor_parts[1]})
+        new_actor = Actor(actor_parts[0], actor_parts[1])
+        self.actors.add(new_actor)
 
     def connect(self, connector):
         #connector består av [ttid, nmid]
         movie, actor = connector[0], connector[1]
         #if (u in self.U and v in self.V) or (u in self.V and v in self.U):
-        self.adj_list[movie].append(actor)
-        self.adj_list[actor].append(movie)
+        self.adj_list.setdefault(movie, []).append(actor)
+        self.adj_list.setdefault(actor, []).append(movie)
 
     def BFSFull(self):
+        components = []
         visited = set()
         V = list(self.actors) + list(self.movies)
         for v in V:
             if v not in visited:
-                BFSVisit(self.adj_list, v, visited)
+                number_of_actors = self.BFSVisit(self.adj_list, v, visited)
+                components.append(number_of_actors)
 
+        return components
+
+    #Feil retur type i forhold til å finne korteste sti fra skuespiller1 til 2
     def BFSVisit(self, E, s, visited):
+        counter = 0
         visited.add(s)
         queue = []
         queue.append(s)
 
-        while queue != []: 
+        while queue: 
             u = queue.pop(0)
-            for (u, v) in E:
+            for v in E[u]:
                 if v not in visited:
                     visited.append(v)
                     queue.append(v)
+                    if v.instanceOf(Actor):
+                        counter += 1
+
+        return counter
+
+    def printComponents(self):
+        components = self.BFSFull()
+
+        antall = {}
+        for tall in components:
+            antall[tall] = components.get(tall, 0) + 1
+
+        for tall, n in antall.items():
+            print(f"There are {n} of size {tall}")
+            
+            
+
+
+    """
+    There are 1 components of size 1
+    There are 1 components of size 3
+    """
+
+                        
 
         

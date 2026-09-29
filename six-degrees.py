@@ -6,6 +6,7 @@ def debug(*args, **kwargs):
 def main():
     debug("Dette er et eksempel på å printe debug info. Du kan slette denne linjen")
 
+
     M = int(input())
     for i in range(M):
         parts = input().split("\t");

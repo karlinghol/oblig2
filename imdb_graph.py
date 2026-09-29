@@ -24,28 +24,45 @@ class Actor():
 
 
 class imdb_graph():
+    #Vi har kommet frem til at denne typer graf er en Bipartite graf
+    #Der V kan representeres som en mengde V1 og V2, eller skuespillere og filmer
+    #https://www.geeksforgeeks.org/dsa/bipartite-graphs-in-python/
     def __init__ (self):
-        self.graph = {}
-        self.actors = {}
+        self.actors = set() #V1
+        self.movies = set() #V2
+        self.adj_list = {} #E
 
     def insert_film(self, film_parts):
         new_film = Film(film_parts[0], film_parts[1], film_parts[2])
-        self.graph.update({new_film: set()})
+        self.movies.add(new_film)
 
     def insert_actor(self, actor_parts):
-        self.actors.update({actor_parts[0], actor_parts[1]})
+        new_actor = Actor({actor_parts[0], actor_parts[1]})
 
     def connect(self, connector):
-        film_id, actor_id = connector[0], connector[1]
-        actor = Actor(actor_id, self.actors[actor_id])
-        self.graph[film_id].add(actor)
+        #connector består av [ttid, nmid]
+        movie, actor = connector[0], connector[1]
+        #if (u in self.U and v in self.V) or (u in self.V and v in self.U):
+        self.adj_list[movie].append(actor)
+        self.adj_list[actor].append(movie)
 
+    def BFSFull(self):
+        visited = set()
+        V = list(self.actors) + list(self.movies)
+        for v in V:
+            if v not in visited:
+                BFSVisit(self.adj_list, v, visited)
 
-    def full_dfs(self):
-        visted = []
-        for movie in self.graph:
-            if movie not in visted:
-                dfs(self.graph, movie, visited)
+    def BFSVisit(self, E, s, visited):
+        visited.add(s)
+        queue = []
+        queue.append(s)
 
-    def dfs(graph, movie, visited):
+        while queue != []: 
+            u = queue.pop(0)
+            for (u, v) in E:
+                if v not in visited:
+                    visited.append(v)
+                    queue.append(v)
+
         

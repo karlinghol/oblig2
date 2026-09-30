@@ -11,60 +11,62 @@ class Actor():
 
 
 class Imdb_graph():
-    #Vi har kommet frem til at denne typer graf er en Bipartite graf
-    #Der V kan representeres som en mengde V1 og V2, eller skuespillere og filmer
-    #https://www.geeksforgeeks.org/dsa/bipartite-graphs-in-python/
     def __init__ (self):
-        self.actors = set() #V1
-        self.movies = set() #V2
-        self.adj_list = {} #E
+        #Vi representerer grafen som en naboliste
+        #Den er implementert som en ordbok
+        #Der en en V er nøkkel og en mengde med u er dens verdi
+        self.G = {}
 
     def insert_film(self, film_parts):
         new_film = Film(film_parts[0], film_parts[1], film_parts[2])
-        self.movies.add(new_film)
-
+        self.G[new_film] = set()
+    
     def insert_actor(self, actor_parts):
         new_actor = Actor(actor_parts[0], actor_parts[1])
-        self.actors.add(new_actor)
+        self.G[new_actor] = set()
 
     def connect(self, connector):
         #connector består av [ttid, nmid]
+        #Vi tar utgangspunkt i her, at vi kunn kobler sammen skuespillere og filmer som allerede er lagt inn
         movie, actor = connector[0], connector[1]
-        #if (u in self.U and v in self.V) or (u in self.V and v in self.U):
-        self.adj_list.setdefault(movie, []).append(actor)
-        self.adj_list.setdefault(actor, []).append(movie)
+        self.G[movie].add(actor)
+        self.G[actor].add(movie)
 
-    def BFSFull(self):
-        components = []
+    def CountComponents(self):
+        #Dette representerer en liste av komponenter
+        #Hver index represneterer en komponentent, og verdien er størrelsen på komponenten
+        components_size = []
         visited = set()
-        V = list(self.actors) + list(self.movies)
-        for v in V:
+        for v in self.G:
             if v not in visited:
-                number_of_actors = self.BFSVisit(self.adj_list, v, visited)
-                components.append(number_of_actors)
+                components_size.append(self.DFSVisit(self.G, v, visited))
 
-        return components
+        return components_size
 
-    #Feil retur type i forhold til å finne korteste sti fra skuespiller1 til 2
-    def BFSVisit(self, E, s, visited):
-        counter = 0
-        visited.add(s)
-        queue = []
-        queue.append(s)
+    #Det er lurt å gjøre denne metoden iterativ, siden vi skal returnere
+    #størrelsen på hver komponent
+    def DFSVisit(G, s, visited):
+        #Vi er bare ute etter å vite hvor mange skuespillere som er i komponenten
+        amount_of_actors = 0
+        stack = [s]
+        while stack:
+            u = stack.pop()
+            if isinstance(u, Actor):
+                amount_of_actors += 1
+            
+            if u not in visited:
+                stack.add(u)
+                #Pseudokoden er egentlig ute etter å 
+                #finne hver kant i grafen som starter i u
+                for v in G[u]:
+                    #Samme som .push(v)
+                    stack.append(v)
+        
+        return amount_of_actors
 
-        while queue: 
-            u = queue.pop(0)
-            for v in E[u]:
-                if v not in visited:
-                    visited.append(v)
-                    queue.append(v)
-                    if v.instanceOf(Actor):
-                        counter += 1
-
-        return counter
 
     def printComponents(self):
-        components = self.BFSFull()
+        components = self.CountComponents()
 
         antall = {}
         for tall in components:
@@ -72,7 +74,20 @@ class Imdb_graph():
 
         for tall, n in antall.items():
             print(f"There are {n} of size {tall}")
-            
+
+    #Midlertidig
+    def find_shortest_path(graph, start, end, path =[]):
+        path = path + [start]
+        if start == end:
+            return path
+        shortest = None
+        for node in graph[start]:
+            if node not in path:
+                newpath = find_shortest_path(graph, node, end, path)
+                if newpath:
+                    if not shortest or len(newpath) < len(shortest):
+                        shortest = newpath
+        return shortest
             
 
 

@@ -33,6 +33,7 @@ def main():
     Qs = int(input())
     for i in range(Qs):
         parts = input().split("\t");
+        print(imdb_graph.find_shortest_path(parts))
         # parts består av [nmid₁, nmid₂]
 
         # Finn korteste vei og print ut på en linje

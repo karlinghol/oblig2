@@ -1,3 +1,5 @@
+from collections import deque
+
 class Film():
     def __init__ (self, id, title, rating):
         self.id = id
@@ -35,6 +37,44 @@ class Imdb_graph():
         self.G[movie].add(actor)
         self.G[actor].add(movie)
 
+    def find_shortest_path(self, start_end):
+        start_actor = self.objects[start_end[0]]
+        end_actor = self.objects[start_end[1]]
+
+        queue = deque()
+        queue.append(start_actor)
+        """
+        Det vi bygger her en oversikt over nodenes foreldre. Så kan vi gå baklengs fra siste node til start noden
+        Så {
+        A : None
+        B : A
+        C : A
+        D : C
+        }
+        """
+        parents = {start_actor: None}
+
+        while queue:
+            current = queue.popleft() #Kaller den current, for å skjønne det bedre
+
+            for neighbor in self.G[current]:
+                if neighbor not in parents:
+                    parents[neighbor] = current
+                    
+                    if neighbor == end_actor:
+                        return self.format_path(parents, end_actor)
+                    
+                    queue.append(neighbor)
+
+    def format_path(self, parents, end_node):
+        path = []
+        node = end_node
+        while node is not None:
+            path.append(node)
+            node = parents[node]
+        
+        return "\t".join(v.id for v in reversed(path))
+        
     def countComponents(self):
         #Dette representerer en liste av komponenter
         #Hver index represneterer en komponentent, og verdien er størrelsen på komponenten
@@ -59,7 +99,7 @@ class Imdb_graph():
                 if isinstance(u, Actor):
                     amount_of_actors += 1
                 for v in self.G[u]: #Pseudokoden er egentlig ute etter å finne hver kant i grafen som starter i u
-                    stack.append(v) #Pseudokoden er egentlig ute etter å finne hver kant i grafen som starter i u
+                    stack.append(v)
         
         return amount_of_actors
 
@@ -78,29 +118,5 @@ class Imdb_graph():
                 counts[component] = 1
         for number, n in counts.items():
             print(f"There are {n} of size {number}")
-
-    #Midlertidig
-    """
-    def find_shortest_path(graph, start, end, path =[]):
-        path = path + [start]
-        if start == end:
-            return path
-        shortest = None
-        for node in graph[start]:
-            if node not in path:
-                newpath = find_shortest_path(graph, node, end, path)
-                if newpath:
-                    if not shortest or len(newpath) < len(shortest):
-                        shortest = newpath
-        return shortest
-    """
-
-
-    """
-    There are 1 components of size 1
-    There are 1 components of size 3
-    """
-
-                        
 
         

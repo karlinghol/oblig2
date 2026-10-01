@@ -58,10 +58,8 @@ class Imdb_graph():
                 visited.add(u)
                 if isinstance(u, Actor):
                     amount_of_actors += 1
-                #Pseudokoden er egentlig ute etter å finne hver kant i grafen som starter i u
-                for v in self.G[u]:
-                    #Samme som .push(v)
-                    stack.append(v)
+                for v in self.G[u]: #Pseudokoden er egentlig ute etter å finne hver kant i grafen som starter i u
+                    stack.append(v) #Pseudokoden er egentlig ute etter å finne hver kant i grafen som starter i u
         
         return amount_of_actors
 
